@@ -1,22 +1,9 @@
-plugins = [
-  "vagrant-disksize",
-  "vagrant-timezone"
-]
-
-plugins.each do |plugin|
-  unless Vagrant.has_plugin?(plugin)
-    raise "#{plugin} is not installed!"
-  end
-end
-
 machines = [
   {
     "name" => "server-0",
     "cpus" => "1",
     "memory" => "1024",
-    "disk" => "100G",
-    "tz" => "America/Sao_Paulo",
-    "ip" => { "private" => "10.0.0.10", "public" => "192.168.2.10" },
+    "ip" => { "private" => "192.168.56.10", "public" => "192.168.2.10" },
     "ports" => [
       # { "guest" => "80", "host" => "80" }
     ]
@@ -25,9 +12,7 @@ machines = [
     "name" => "worker-0",
     "cpus" => "1",
     "memory" => "1024",
-    "disk" => "100G",
-    "tz" => "America/Sao_Paulo",
-    "ip" => { "private" => "10.0.0.10", "public" => "192.168.2.10" },
+    "ip" => { "private" => "192.168.56.20", "public" => "192.168.2.20" },
     "ports" => [
       # { "guest" => "80", "host" => "80" }
     ]
@@ -43,10 +28,6 @@ Vagrant.configure("2") do |config|
   
       machine.vm.hostname = spec["name"]
 
-      machine.timezone.value = spec["tz"]
-
-      machine.disksize.size = spec["disk"]
-  
       unless spec["ip"]["public"].nil?
         machine.vm.network "public_network", ip: spec["ip"]["public"]
       end
