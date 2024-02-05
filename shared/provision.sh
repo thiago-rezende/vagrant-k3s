@@ -51,7 +51,8 @@ declare -r ansi_grey="$ansi_black_bold"
 # usage message
 usage() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold usage $ansi_reset>"
-  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold upgrade $ansi_reset | execute a '$ansi_magenta_bold system wide $ansi_reset' '$ansi_green_bold upgrade $ansi_reset'"
+  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold upgrade $ansi_reset | execute a '$ansi_magenta_bold system wide $ansi_reset' upgrade"
+  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold hosts $ansi_reset   | update the '$ansi_yellow_bold /etc/hosts $ansi_reset' file"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold help $ansi_reset    | show this help message"
 
   exit 0
@@ -94,7 +95,7 @@ logs_directory() {
 
 # system wide upgrade
 upgrade() {
-  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold upgrade $ansi_reset> executing a '$ansi_magenta_bold system wide $ansi_reset' '$ansi_green_bold upgrade $ansi_reset'"
+  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold upgrade $ansi_reset> executing a '$ansi_magenta_bold system wide $ansi_reset' upgrade"
   echo >&3 -e "|> [$ansi_white_bold apt $ansi_reset] <$ansi_yellow_bold update $ansi_reset> updating the package repositories"
 
   apt >&$logs_directory/upgrade__apt__update.log update
@@ -110,9 +111,22 @@ upgrade() {
   fi
 }
 
+# setup /etc/hosts
+hosts() {
+  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold hosts $ansi_reset> setting up the '$ansi_yellow_bold /etc/hosts $ansi_reset' file"
+  echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /opt/shared/hosts $ansi_reset' -> '$ansi_yellow_bold /etc/hosts $ansi_reset'"
+
+  cp >&$logs_directory/hosts__copy.log /opt/shared/hosts /etc/hosts
+  
+  if [ $? -ne 0 ]; then
+    failure "hosts" "$logs_directory/hosts__apt__update.log"
+  fi
+}
+
 # argument handler
 case $1 in
   upgrade) logs_directory; upgrade;;
+  hosts) logs_directory; hosts;;
   help) usage;;
   *) invalid_argument $1;;
 esac

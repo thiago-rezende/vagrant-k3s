@@ -1,0 +1,18 @@
+# [ vagrant k8s ] ----------------------- <ipv4> -
+
+127.0.0.1 localhost
+127.0.1.1 vagrant
+
+# [ vagrant k8s ] ----------------------- <ipv6> -
+
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+# [ vagrant k8s ] ------------------- <machines> -
+
+<% machines.each do |m| -%>
+<%= "#{m["ip"]["public"] || m["ip"]["private"]} #{m["name"]}" %>
+<% end -%>

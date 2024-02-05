@@ -1,9 +1,11 @@
+require 'erb'
+
 machines = [
   {
     "name" => "server-0",
     "cpus" => "1",
     "memory" => "1024",
-    "ip" => { "private" => "192.168.56.10", "public" => "192.168.2.10" },
+    "ip" => { "private" => "192.168.56.10", "public" => nil },
     "ports" => [
       # { "guest" => "80", "host" => "80" }
     ]
@@ -12,12 +14,13 @@ machines = [
     "name" => "worker-0",
     "cpus" => "1",
     "memory" => "1024",
-    "ip" => { "private" => "192.168.56.20", "public" => "192.168.2.20" },
-    "ports" => [
-      # { "guest" => "80", "host" => "80" }
-    ]
+    "ip" => { "private" => "192.168.56.20", "public" => nil },
+    "ports" => []
   }
 ]
+
+hosts_erb = ERB.new(File.read('./shared/templates/hosts.erb'), trim_mode: "-")
+File.write("./shared/hosts", hosts_erb.result(binding))
 
 Vagrant.configure("2") do |config|
   machines.each do |spec|
@@ -51,6 +54,10 @@ Vagrant.configure("2") do |config|
         chmod 755 /opt/shared/provision.sh
       
         bash /opt/shared/provision.sh upgrade
+      SHELL
+
+      machine.vm.provision "shell", run: "always", inline: <<-SHELL
+        bash /opt/shared/provision.sh hosts
       SHELL
     end
   end  
