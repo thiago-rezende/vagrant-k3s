@@ -60,13 +60,13 @@ Vagrant.configure("2") do |config|
         vb.memory = spec["memory"]
       end
       
-      machine.vm.provision "shell", inline: <<-SHELL
+      machine.vm.provision "shell", keep_color: true, inline: <<-SHELL
         chmod 755 /opt/shared/provision.sh
       
         bash /opt/shared/provision.sh upgrade
       SHELL
 
-      machine.vm.provision "shell", run: "always", inline: <<-SHELL
+      machine.vm.provision "shell", keep_color: true, run: "always", inline: <<-SHELL
         bash /opt/shared/provision.sh hosts
       SHELL
     end
