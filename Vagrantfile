@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
 
       machine.vm.hostname = spec["name"]
 
-      unless spec["ip"]["public"].nil?
+      unless spec["ip"]["public"].nil? || spec["ip"]["public"].empty?
         machine.vm.network "public_network", ip: spec["ip"]["public"]
       end
 
