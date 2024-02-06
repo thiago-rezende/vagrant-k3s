@@ -37,28 +37,28 @@ Vagrant.configure("2") do |config|
       machine.vm.box = "ubuntu/jammy64"
 
       machine.vm.box_download_options = { "ssl-revoke-best-effort" => true }
-  
+
       machine.vm.hostname = spec["name"]
 
       unless spec["ip"]["public"].nil?
         machine.vm.network "public_network", ip: spec["ip"]["public"]
       end
-  
+
       machine.vm.network "private_network", ip: spec["ip"]["private"]
-  
+
       spec["ports"].each do |port|
         machine.vm.network "forwarded_port", guest: port["guest"], host: port["host"]
       end
-  
+
       machine.vm.synced_folder "./shared", "/opt/shared"
-  
-      machine.vm.provider "virtualbox" do |vb|
-        vb.name = spec["name"]
-  
-        vb.cpus = spec["cpus"]
-        vb.memory = spec["memory"]
+
+      machine.vm.provider "virtualbox" do |vbox|
+        vbox.name = spec["name"]
+
+        vbox.cpus = spec["cpus"]
+        vbox.memory = spec["memory"]
       end
-      
+
       machine.vm.provision "shell", keep_color: true, inline: <<-SHELL
         bash /opt/shared/scripts/provision.sh upgrade
 
@@ -71,5 +71,5 @@ Vagrant.configure("2") do |config|
         bash /opt/shared/scripts/provision.sh configs
       SHELL
     end
-  end  
+  end
 end

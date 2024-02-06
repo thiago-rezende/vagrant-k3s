@@ -1,0 +1,19 @@
+{
+  "Machine Definiton": {
+    "scope": "ruby,vagrant",
+    "prefix": "machine",
+    "body": [
+      "{",
+      "  \"name\" => \"${1:role}-${2:number}\",",
+      "  \"cpus\" => \"${3:cpus}\",",
+      "  \"memory\" => \"${4:memory}\",",
+      "  \"ip\" => { \"private\" => \"${5:public_ip}\", \"public\" => nil },",
+      "  \"ports\" => [",
+      "    # { \"guest\" => \"80\", \"host\" => \"80\" }",
+      "    # { \"guest\" => \"443\", \"host\" => \"443\" }",
+      "  ]",
+      "}"
+    ],
+    "description": "Creates a new machine definition"
+  }
+}

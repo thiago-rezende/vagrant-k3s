@@ -75,7 +75,7 @@ failure() {
 
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_red_bold error $ansi_reset> failed on '$ansi_magenta_bold $context $ansi_reset' context"
   echo >&3 -e "|> [$ansi_white_bold log $ansi_reset] check '$ansi_yellow_bold $log_file $ansi_reset' for more information"
-  
+
   exit 1
 }
 
@@ -101,7 +101,7 @@ upgrade() {
   echo >&3 -e "|> [$ansi_white_bold apt $ansi_reset] <$ansi_yellow_bold update $ansi_reset> updating the package repositories"
 
   apt >&$logs_directory/upgrade__apt__update.log update
-  
+
   if [ $? -ne 0 ]; then
     failure "upgrade" "$logs_directory/upgrade__apt__update.log"
   fi
@@ -109,7 +109,7 @@ upgrade() {
   echo >&3 -e "|> [$ansi_white_bold apt $ansi_reset] <$ansi_yellow_bold upgrade $ansi_reset> upgrading the installed packages"
 
   apt >&$logs_directory/upgrade__apt__upgrade.log upgrade -y
-  
+
   if [ $? -ne 0 ]; then
     failure "upgrade" "$logs_directory/upgrade__apt__upgrade.log"
   fi
@@ -121,7 +121,7 @@ dependencies() {
   echo >&3 -e "|> [$ansi_white_bold apt $ansi_reset] <$ansi_yellow_bold install $ansi_reset> installing '$ansi_magenta_bold vim $ansi_reset' package"
 
   apt >&$logs_directory/dependencies__apt__install__vim.log install vim
-  
+
   if [ $? -ne 0 ]; then
     failure "dependencies" "$logs_directory/dependencies__apt__install__vim.log"
   fi
@@ -133,7 +133,7 @@ hosts() {
   echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /opt/shared/templates/.results/hosts $ansi_reset' -> '$ansi_yellow_bold /etc/hosts $ansi_reset'"
 
   cp >&$logs_directory/hosts__copy.log /opt/shared/templates/.results/hosts /etc/hosts
-  
+
   if [ $? -ne 0 ]; then
     failure "hosts" "$logs_directory/hosts__copy.log"
   fi
@@ -145,7 +145,7 @@ configs() {
   echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /opt/shared/configs/.vimrc $ansi_reset' -> '$ansi_yellow_bold /home/vagrant/.vimrc $ansi_reset'"
 
   cp >&$logs_directory/configs__copy__vimrc.log /opt/shared/configs/.vimrc /home/vagrant/.vimrc
-  
+
   if [ $? -ne 0 ]; then
     failure "configs" "$logs_directory/configs__copy__vimrc.log"
   fi
