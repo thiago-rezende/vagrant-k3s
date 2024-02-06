@@ -1,36 +1,13 @@
-# Created by https://www.toptal.com/developers/gitignore/api/vagrant,visualstudiocode
-# Edit at https://www.toptal.com/developers/gitignore?templates=vagrant,visualstudiocode
+### Vagrant k8s ###
+shared/logs
+
+shared/templates/.results
 
 ### Vagrant ###
-# General
 .vagrant/
-
-# Log files (if you are creating logs in debug mode, uncomment this)
-*.log
-
-### Vagrant Patch ###
-*.box
 
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
-
-# Local History for Visual Studio Code
-.history/
-
-# Built Visual Studio Code Extensions
-*.vsix
-
-# Ignore all local history of files
-.history
-.ionide
-
-# Machine logs
-shared/logs
-
-# Generated sources
-shared/templates/.results
