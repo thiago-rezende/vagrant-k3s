@@ -51,9 +51,11 @@ declare -r ansi_grey="$ansi_black_bold"
 # usage message
 usage() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold usage $ansi_reset>"
-  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold upgrade $ansi_reset | execute a '$ansi_magenta_bold system wide $ansi_reset' upgrade"
-  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold hosts $ansi_reset   | update the '$ansi_yellow_bold /etc/hosts $ansi_reset' file"
-  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold help $ansi_reset    | show this help message"
+  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold dependencies $ansi_reset | setup '$ansi_magenta_bold system wide $ansi_reset' dependencies"
+  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold configs $ansi_reset      | setup '$ansi_yellow_bold config $ansi_reset' files"
+  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold upgrade $ansi_reset      | execute a '$ansi_magenta_bold system wide $ansi_reset' upgrade"
+  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold hosts $ansi_reset        | update the '$ansi_yellow_bold hosts $ansi_reset' file"
+  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold help $ansi_reset         | show this help message"
 
   exit 0
 }
@@ -83,7 +85,7 @@ logs_directory() {
     return
   fi
 
-  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold logs $ansi_reset> settnig up the '$ansi_cyan_bold logs $ansi_reset' environment"
+  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold logs $ansi_reset> setting up the '$ansi_cyan_bold logs $ansi_reset' environment"
   echo >&3 -e "|> [$ansi_white_bold mkdir $ansi_reset] creating the '$ansi_yellow_bold $logs_directory $ansi_reset' directory"
 
   mkdir >&/tmp/${script_name%.*}__logs__mkdir.log -p $logs_directory
@@ -104,6 +106,8 @@ upgrade() {
     failure "upgrade" "$logs_directory/upgrade__apt__update.log"
   fi
 
+  echo >&3 -e "|> [$ansi_white_bold apt $ansi_reset] <$ansi_yellow_bold upgrade $ansi_reset> upgrading the installed packages"
+
   apt >&$logs_directory/upgrade__apt__upgrade.log upgrade -y
   
   if [ $? -ne 0 ]; then
@@ -111,9 +115,21 @@ upgrade() {
   fi
 }
 
+# setup dependencies
+dependencies() {
+  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold dependencies $ansi_reset> setup '$ansi_magenta_bold system wide $ansi_reset' dependencies"
+  echo >&3 -e "|> [$ansi_white_bold apt $ansi_reset] <$ansi_yellow_bold install $ansi_reset> installing '$ansi_magenta_bold vim $ansi_reset' package"
+
+  apt >&$logs_directory/dependencies__apt__install__vim.log install vim
+  
+  if [ $? -ne 0 ]; then
+    failure "dependencies" "$logs_directory/dependencies__apt__install__vim.log"
+  fi
+}
+
 # setup /etc/hosts
 hosts() {
-  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold hosts $ansi_reset> setting up the '$ansi_yellow_bold /etc/hosts $ansi_reset' file"
+  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold hosts $ansi_reset> setting up the '$ansi_yellow_bold hosts $ansi_reset' file"
   echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /opt/shared/templates/.results/hosts $ansi_reset' -> '$ansi_yellow_bold /etc/hosts $ansi_reset'"
 
   cp >&$logs_directory/hosts__copy.log /opt/shared/templates/.results/hosts /etc/hosts
@@ -123,8 +139,22 @@ hosts() {
   fi
 }
 
+# setup config files
+configs() {
+  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold configs $ansi_reset> setting up the '$ansi_yellow_bold config $ansi_reset' files"
+  echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /opt/shared/configs/.vimrc $ansi_reset' -> '$ansi_yellow_bold /home/vagrant/.vimrc $ansi_reset'"
+
+  cp >&$logs_directory/configs__copy__vimrc.log /opt/shared/configs/.vimrc /home/vagrant/.vimrc
+  
+  if [ $? -ne 0 ]; then
+    failure "configs" "$logs_directory/configs__copy__vimrc.log"
+  fi
+}
+
 # argument handler
 case $1 in
+  dependencies) logs_directory; dependencies;;
+  configs) logs_directory; configs;;
   upgrade) logs_directory; upgrade;;
   hosts) logs_directory; hosts;;
   help) usage;;

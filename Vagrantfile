@@ -2,19 +2,27 @@ require 'erb'
 
 machines = [
   {
-    "name" => "server-0",
+    "name" => "loadbalancer-0",
     "cpus" => "1",
-    "memory" => "1024",
+    "memory" => "512",
     "ip" => { "private" => "192.168.56.10", "public" => nil },
     "ports" => [
       # { "guest" => "80", "host" => "80" }
+      # { "guest" => "443", "host" => "443" }
     ]
+  },
+  {
+    "name" => "server-0",
+    "cpus" => "1",
+    "memory" => "1024",
+    "ip" => { "private" => "192.168.56.110", "public" => nil },
+    "ports" => []
   },
   {
     "name" => "worker-0",
     "cpus" => "1",
-    "memory" => "1024",
-    "ip" => { "private" => "192.168.56.20", "public" => nil },
+    "memory" => "512",
+    "ip" => { "private" => "192.168.56.210", "public" => nil },
     "ports" => []
   }
 ]
@@ -61,13 +69,17 @@ Vagrant.configure("2") do |config|
       end
       
       machine.vm.provision "shell", keep_color: true, inline: <<-SHELL
-        chmod 755 /opt/shared/provision.sh
+        chmod 755 /opt/shared/scripts/provision.sh
       
-        bash /opt/shared/provision.sh upgrade
+        bash /opt/shared/scripts/provision.sh upgrade
+
+        bash /opt/shared/scripts/provision.sh dependencies
       SHELL
 
       machine.vm.provision "shell", keep_color: true, run: "always", inline: <<-SHELL
-        bash /opt/shared/provision.sh hosts
+        bash /opt/shared/scripts/provision.sh hosts
+
+        bash /opt/shared/scripts/provision.sh configs
       SHELL
     end
   end  
