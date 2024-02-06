@@ -20,16 +20,16 @@ machines = [
 ]
 
 templates_dir = "./shared/templates"
-templates_build_dir = templates_dir + "/.build"
+templates_results_dir = templates_dir + "/.results"
 
-Dir.mkdir(templates_build_dir) unless File.exists?(templates_build_dir)
+Dir.mkdir(templates_results_dir) unless File.exists?(templates_results_dir)
 
 templates = Dir.glob(templates_dir + "/*.erb")
 
 templates.each do |template|
   template_erb = ERB.new(File.read(template), trim_mode: "-")
 
-  File.write(templates_build_dir + "/" + File.basename(template, ".*"), template_erb.result(binding))
+  File.write(templates_results_dir + "/" + File.basename(template, ".*"), template_erb.result(binding))
 end
 
 Vagrant.configure("2") do |config|

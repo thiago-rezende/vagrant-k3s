@@ -33,4 +33,4 @@
 shared/logs
 
 # Generated sources
-shared/templates/.build
+shared/templates/.results
