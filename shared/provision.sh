@@ -114,9 +114,9 @@ upgrade() {
 # setup /etc/hosts
 hosts() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold hosts $ansi_reset> setting up the '$ansi_yellow_bold /etc/hosts $ansi_reset' file"
-  echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /opt/shared/hosts $ansi_reset' -> '$ansi_yellow_bold /etc/hosts $ansi_reset'"
+  echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /opt/shared/templates/.build/hosts $ansi_reset' -> '$ansi_yellow_bold /etc/hosts $ansi_reset'"
 
-  cp >&$logs_directory/hosts__copy.log /opt/shared/hosts /etc/hosts
+  cp >&$logs_directory/hosts__copy.log /opt/shared/templates/.build/hosts /etc/hosts
   
   if [ $? -ne 0 ]; then
     failure "hosts" "$logs_directory/hosts__apt__update.log"

@@ -29,5 +29,8 @@
 .history
 .ionide
 
+# Machine logs
+shared/logs
+
 # Generated sources
-shared/hosts
+shared/templates/.build

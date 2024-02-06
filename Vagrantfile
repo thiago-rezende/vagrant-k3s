@@ -19,8 +19,18 @@ machines = [
   }
 ]
 
-hosts_erb = ERB.new(File.read('./shared/templates/hosts.erb'), trim_mode: "-")
-File.write("./shared/hosts", hosts_erb.result(binding))
+templates_dir = "./shared/templates"
+templates_build_dir = templates_dir + "/.build"
+
+Dir.mkdir(templates_build_dir) unless File.exists?(templates_build_dir)
+
+templates = Dir.glob(templates_dir + "/*.erb")
+
+templates.each do |template|
+  template_erb = ERB.new(File.read(template), trim_mode: "-")
+
+  File.write(templates_build_dir + "/" + File.basename(template, ".*"), template_erb.result(binding))
+end
 
 Vagrant.configure("2") do |config|
   machines.each do |spec|
