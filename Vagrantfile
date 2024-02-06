@@ -34,7 +34,7 @@ Templates.process("./shared/templates", "./shared/templates/.results", {
 Vagrant.configure("2") do |config|
   machines.each do |spec|
     config.vm.define spec["name"] do |machine|
-      machine.vm.box = "ubuntu/jammy64"
+      machine.vm.box = "generic/alpine319"
 
       machine.vm.box_download_options = { "ssl-revoke-best-effort" => true }
 

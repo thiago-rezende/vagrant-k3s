@@ -98,32 +98,32 @@ logs_directory() {
 # system wide upgrade
 upgrade() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold upgrade $ansi_reset> executing a '$ansi_magenta_bold system wide $ansi_reset' upgrade"
-  echo >&3 -e "|> [$ansi_white_bold apt $ansi_reset] <$ansi_yellow_bold update $ansi_reset> updating the package repositories"
+  echo >&3 -e "|> [$ansi_white_bold apk $ansi_reset] <$ansi_yellow_bold update $ansi_reset> updating the package repositories"
 
-  apt >&$logs_directory/upgrade__apt__update.log update
+  apk >&$logs_directory/upgrade__apk__update.log update
 
   if [ $? -ne 0 ]; then
-    failure "upgrade" "$logs_directory/upgrade__apt__update.log"
+    failure "upgrade" "$logs_directory/upgrade__apk__update.log"
   fi
 
-  echo >&3 -e "|> [$ansi_white_bold apt $ansi_reset] <$ansi_yellow_bold upgrade $ansi_reset> upgrading the installed packages"
+  echo >&3 -e "|> [$ansi_white_bold apk $ansi_reset] <$ansi_yellow_bold upgrade $ansi_reset> upgrading the installed packages"
 
-  apt >&$logs_directory/upgrade__apt__upgrade.log upgrade -y
+  apk >&$logs_directory/upgrade__apk__upgrade.log upgrade
 
   if [ $? -ne 0 ]; then
-    failure "upgrade" "$logs_directory/upgrade__apt__upgrade.log"
+    failure "upgrade" "$logs_directory/upgrade__apk__upgrade.log"
   fi
 }
 
 # setup dependencies
 dependencies() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold dependencies $ansi_reset> setup '$ansi_magenta_bold system wide $ansi_reset' dependencies"
-  echo >&3 -e "|> [$ansi_white_bold apt $ansi_reset] <$ansi_yellow_bold install $ansi_reset> installing '$ansi_magenta_bold vim $ansi_reset' package"
+  echo >&3 -e "|> [$ansi_white_bold apk $ansi_reset] <$ansi_yellow_bold add $ansi_reset> installing '$ansi_magenta_bold vim $ansi_reset' package"
 
-  apt >&$logs_directory/dependencies__apt__install__vim.log install vim
+  apk >&$logs_directory/dependencies__apk__add__vim.log add vim
 
   if [ $? -ne 0 ]; then
-    failure "dependencies" "$logs_directory/dependencies__apt__install__vim.log"
+    failure "dependencies" "$logs_directory/dependencies__apk__add__vim.log"
   fi
 }
 
