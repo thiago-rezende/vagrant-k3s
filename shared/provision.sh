@@ -119,7 +119,7 @@ hosts() {
   cp >&$logs_directory/hosts__copy.log /opt/shared/templates/.build/hosts /etc/hosts
   
   if [ $? -ne 0 ]; then
-    failure "hosts" "$logs_directory/hosts__apt__update.log"
+    failure "hosts" "$logs_directory/hosts__copy.log"
   fi
 }
 
