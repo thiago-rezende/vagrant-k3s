@@ -15,14 +15,14 @@ machines = [
     "name" => "server-0",
     "cpus" => "1",
     "memory" => "1024",
-    "ip" => { "private" => "10.0.0.110", "public" => nil },
+    "ip" => { "private" => "10.0.0.100", "public" => nil },
     "ports" => []
   },
   {
     "name" => "worker-0",
     "cpus" => "1",
     "memory" => "512",
-    "ip" => { "private" => "10.0.0.210", "public" => nil },
+    "ip" => { "private" => "10.0.0.200", "public" => nil },
     "ports" => []
   }
 ]
@@ -57,6 +57,8 @@ Vagrant.configure("2") do |config|
 
         vbox.cpus = spec["cpus"]
         vbox.memory = spec["memory"]
+
+        vbox.customize ["modifyvm", :id, "--groups", "/k8s"]
       end
 
       machine.vm.provision "shell", keep_color: true, inline: <<-SHELL

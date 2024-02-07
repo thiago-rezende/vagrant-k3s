@@ -18,7 +18,7 @@
 script_name=`basename "$0"`
 
 # logs directory
-logs_directory=${PROVISION_LOGS_DIRECTORY:-/opt/shared/logs/$(hostname)}
+logs_directory=${PROVISION_LOGS_DIRECTORY:-/opt/shared/.logs/$(hostname)}
 
 # verbosity
 if [ -z "${PROVISION_QUIET_LOGS:-}" ]; then

@@ -1,5 +1,5 @@
 ### Vagrant k8s ###
-shared/logs
+shared/.logs
 
 shared/templates/.results
 
