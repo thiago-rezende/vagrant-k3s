@@ -58,7 +58,7 @@ Vagrant.configure("2") do |config|
         vbox.cpus = spec["cpus"]
         vbox.memory = spec["memory"]
 
-        vbox.customize ["modifyvm", :id, "--groups", "/k8s"]
+        vbox.customize ["modifyvm", :id, "--groups", "/K8s"]
       end
 
       machine.vm.provision "shell", keep_color: true, inline: <<-SHELL
