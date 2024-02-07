@@ -53,6 +53,7 @@ usage() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold usage $ansi_reset>"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold dependencies $ansi_reset | setup '$ansi_magenta_bold system wide $ansi_reset' dependencies"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold configs $ansi_reset      | setup '$ansi_yellow_bold config $ansi_reset' files"
+  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold swapoff $ansi_reset      | disable '$ansi_yellow_bold swap $ansi_reset' files '$ansi_magenta_bold system wide $ansi_reset'"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold upgrade $ansi_reset      | execute a '$ansi_magenta_bold system wide $ansi_reset' upgrade"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold hosts $ansi_reset        | update the '$ansi_yellow_bold hosts $ansi_reset' file"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold help $ansi_reset         | show this help message"
@@ -151,10 +152,31 @@ configs() {
   fi
 }
 
+# setup config files
+swap() {
+  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold swap $ansi_reset> disabling '$ansi_yellow_bold swap $ansi_reset' files '$ansi_magenta_bold system wide $ansi_reset'"
+  echo >&3 -e "|> [$ansi_white_bold swapoff $ansi_reset] disabling '$ansi_yellow_bold swap $ansi_reset' using '$ansi_cyan_bold swapoff $ansi_reset'"
+
+  swapoff >&$logs_directory/swap__swapoff.log -a
+
+  if [ $? -ne 0 ]; then
+    failure "swapoff" "$logs_directory/swap__swapoff.log"
+  fi
+
+  echo >&3 -e "|> [$ansi_white_bold sed $ansi_reset] removing '$ansi_yellow_bold swap $ansi_reset' entries from '$ansi_yellow_bold /etc/fstab $ansi_reset'"
+
+  sed >&$logs_directory/swap__sed__fstab.log -i '/swap/d' /etc/fstab
+
+  if [ $? -ne 0 ]; then
+    failure "swapoff" "$logs_directory/swap__sed__fstab.log"
+  fi
+}
+
 # argument handler
 case $1 in
   dependencies) logs_directory; dependencies;;
   configs) logs_directory; configs;;
+  swapoff) logs_directory; swap;;
   upgrade) logs_directory; upgrade;;
   hosts) logs_directory; hosts;;
   help) usage;;

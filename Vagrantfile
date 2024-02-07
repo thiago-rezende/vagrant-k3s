@@ -62,6 +62,8 @@ Vagrant.configure("2") do |config|
       end
 
       machine.vm.provision "shell", keep_color: true, inline: <<-SHELL
+        bash /opt/shared/scripts/provision.sh swapoff
+
         bash /opt/shared/scripts/provision.sh upgrade
 
         bash /opt/shared/scripts/provision.sh dependencies

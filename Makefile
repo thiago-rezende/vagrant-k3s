@@ -4,6 +4,10 @@ up:
 	@echo "[ K8s ] starting cluster"
 	@vagrant up --provider=virtualbox
 
+provision:
+	@echo "[ K8s ] starting cluster"
+	@vagrant up --provider=virtualbox --provision
+
 halt:
 	@echo "[ K8s ] stopping cluster"
 	@vagrant halt
