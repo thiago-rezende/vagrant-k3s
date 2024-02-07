@@ -7,9 +7,9 @@
       "  \"name\" => \"${1:role}-${2:number}\",",
       "  \"cpus\" => \"${3:cpus}\",",
       "  \"memory\" => \"${4:memory}\",",
-      "  \"ip\" => { \"private\" => \"${5:private_ip}\", \"public\" => \"${6:public_ip}\" },",
+      "  \"ip\" => { \"private\" => \"${5:private_ip}\", \"public\" => nil },",
       "  \"ports\" => [",
-      "    { \"guest\" => \"${7:guest_port}\", \"host\" => \"${8:host_port}\" }"
+      "    { \"guest\" => \"${6:guest_port}\", \"host\" => \"${7:host_port}\" }"
       "  ]",
       "}"
     ],
