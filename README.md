@@ -11,7 +11,7 @@
 
 <!-- Short Description -->
 
-> A simple Kubernetes cluster built from scratch using vagrant machines.
+> A simple Kubernetes cluster built from scratch using Vagrant machines.
 
 <!-- Description -->
 
