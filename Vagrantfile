@@ -50,7 +50,7 @@ Vagrant.configure("2") do |config|
         machine.vm.network "forwarded_port", guest: port["guest"], host: port["host"]
       end
 
-      machine.vm.synced_folder "./shared", "/opt/shared"
+      machine.vm.synced_folder "./shared", "/shared"
 
       machine.vm.provider "virtualbox" do |vbox|
         vbox.name = spec["name"]
@@ -62,17 +62,19 @@ Vagrant.configure("2") do |config|
       end
 
       machine.vm.provision "shell", keep_color: true, inline: <<-SHELL
-        bash /opt/shared/scripts/provision.sh swapoff
+        bash /shared/scripts/provision.sh swapoff
 
-        bash /opt/shared/scripts/provision.sh upgrade
+        bash /shared/scripts/provision.sh upgrade
 
-        bash /opt/shared/scripts/provision.sh dependencies
+        bash /shared/scripts/provision.sh dependencies
       SHELL
 
       machine.vm.provision "shell", keep_color: true, run: "always", inline: <<-SHELL
-        bash /opt/shared/scripts/provision.sh hosts
+        bash /shared/scripts/provision.sh hosts
 
-        bash /opt/shared/scripts/provision.sh configs
+        bash /shared/scripts/provision.sh configs
+
+        bash /shared/scripts/provision.sh services
       SHELL
     end
   end

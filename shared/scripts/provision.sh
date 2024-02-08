@@ -18,7 +18,7 @@
 script_name=`basename "$0"`
 
 # logs directory
-logs_directory=${PROVISION_LOGS_DIRECTORY:-/opt/shared/.logs/$(hostname)}
+logs_directory=${PROVISION_LOGS_DIRECTORY:-/shared/.logs/$(hostname)}
 
 # verbosity
 if [ -z "${PROVISION_QUIET_LOGS:-}" ]; then
@@ -52,6 +52,7 @@ declare -r ansi_grey="$ansi_black_bold"
 usage() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold usage $ansi_reset>"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold dependencies $ansi_reset | setup '$ansi_magenta_bold system wide $ansi_reset' dependencies"
+  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold services $ansi_reset     | start system '$ansi_yellow_bold services $ansi_reset'"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold configs $ansi_reset      | setup '$ansi_yellow_bold config $ansi_reset' files"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold swapoff $ansi_reset      | disable '$ansi_yellow_bold swap $ansi_reset' files '$ansi_magenta_bold system wide $ansi_reset'"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold upgrade $ansi_reset      | execute a '$ansi_magenta_bold system wide $ansi_reset' upgrade"
@@ -126,14 +127,24 @@ dependencies() {
   if [ $? -ne 0 ]; then
     failure "dependencies" "$logs_directory/dependencies__apk__add__vim.log"
   fi
+
+  if [[ $HOSTNAME == *"loadbalancer"* ]]; then
+    echo >&3 -e "|> [$ansi_white_bold apk $ansi_reset] <$ansi_yellow_bold add $ansi_reset> installing '$ansi_magenta_bold nginx $ansi_reset' package"
+
+    apk >&$logs_directory/dependencies__apk__add__nginx.log add nginx
+
+    if [ $? -ne 0 ]; then
+      failure "dependencies" "$logs_directory/dependencies__apk__add__nginx.log"
+    fi
+  fi
 }
 
 # setup /etc/hosts
 hosts() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold hosts $ansi_reset> setting up the '$ansi_yellow_bold hosts $ansi_reset' file"
-  echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /opt/shared/templates/.results/hosts $ansi_reset' -> '$ansi_yellow_bold /etc/hosts $ansi_reset'"
+  echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /shared/templates/.results/hosts $ansi_reset' -> '$ansi_yellow_bold /etc/hosts $ansi_reset'"
 
-  cp >&$logs_directory/hosts__copy.log /opt/shared/templates/.results/hosts /etc/hosts
+  cp >&$logs_directory/hosts__copy.log /shared/templates/.results/hosts /etc/hosts
 
   if [ $? -ne 0 ]; then
     failure "hosts" "$logs_directory/hosts__copy.log"
@@ -143,12 +154,22 @@ hosts() {
 # setup config files
 configs() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold configs $ansi_reset> setting up the '$ansi_yellow_bold config $ansi_reset' files"
-  echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /opt/shared/configs/.vimrc $ansi_reset' -> '$ansi_yellow_bold /home/vagrant/.vimrc $ansi_reset'"
+  echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /shared/configs/.vimrc $ansi_reset' -> '$ansi_yellow_bold /home/vagrant/.vimrc $ansi_reset'"
 
-  cp >&$logs_directory/configs__copy__vimrc.log /opt/shared/configs/.vimrc /home/vagrant/.vimrc
+  cp >&$logs_directory/configs__copy__vimrc.log /shared/configs/.vimrc /home/vagrant/.vimrc
 
   if [ $? -ne 0 ]; then
     failure "configs" "$logs_directory/configs__copy__vimrc.log"
+  fi
+
+  if [[ $HOSTNAME == *"loadbalancer"* ]]; then
+    echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /shared/templates/.results/nginx.conf $ansi_reset' -> '$ansi_yellow_bold /etc/nginx/nginx.conf $ansi_reset'"
+
+    cp >&$logs_directory/configs__copy__nginx_conf.log /shared/templates/.results/nginx.conf /etc/nginx/nginx.conf
+
+    if [ $? -ne 0 ]; then
+      failure "configs" "$logs_directory/configs__copy__nginx_conf.log"
+    fi
   fi
 }
 
@@ -172,9 +193,33 @@ swap() {
   fi
 }
 
+# startup services
+services() {
+  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold services $ansi_reset> starting up the '$ansi_yellow_bold services $ansi_reset'"
+
+  if [[ $HOSTNAME == *"loadbalancer"* ]]; then
+    echo >&3 -e "|> [$ansi_white_bold rc-service $ansi_reset] starting '$ansi_yellow_bold nginx $ansi_reset' service"
+
+    rc-service >&$logs_directory/rc_service__nginx__start.log --ifnotstarted nginx start
+
+    if [ $? -ne 0 ]; then
+      failure "configs" "$logs_directory/rc_service__nginx__start.log"
+    fi
+
+    echo >&3 -e "|> [$ansi_white_bold rc-service $ansi_reset] reloading '$ansi_yellow_bold nginx $ansi_reset' service"
+
+    rc-service >&$logs_directory/rc_service__nginx__reload.log nginx reload
+
+    if [ $? -ne 0 ]; then
+      failure "configs" "$logs_directory/rc_service__nginx__reload.log"
+    fi
+  fi
+}
+
 # argument handler
 case $1 in
   dependencies) logs_directory; dependencies;;
+  services) logs_directory; services;;
   configs) logs_directory; configs;;
   swapoff) logs_directory; swap;;
   upgrade) logs_directory; upgrade;;
