@@ -16,6 +16,11 @@ destroy:
 	@echo "[ K8s ] destroying cluster"
 	@vagrant destroy -f
 
+status:
+	@echo "[ K8s ] cluster nodes status"
+	@vagrant status | grep -o --color=never -E '(loadbalancer|server|worker).*' \
+	 | tr -d \(\) | xargs -L1 printf "|> [ node ] %s\n|--> [ status ] %s\n|--> [ provider ] %s\n"
+
 ssh:
 	@echo "[ K8s ] acessing cluster nodes"
 
