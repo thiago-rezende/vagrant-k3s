@@ -1,6 +1,26 @@
 require './modules/templates'
 
-machines = [
+servers = [
+  {
+    "name" => "server-0",
+    "cpus" => "1",
+    "memory" => "1024",
+    "ip" => { "private" => "10.0.0.100", "public" => nil },
+    "ports" => []
+  }
+]
+
+workers = [
+  {
+    "name" => "worker-0",
+    "cpus" => "1",
+    "memory" => "512",
+    "ip" => { "private" => "10.0.0.200", "public" => nil },
+    "ports" => []
+  }
+]
+
+loadbalancers = [
   {
     "name" => "loadbalancer-0",
     "cpus" => "1",
@@ -10,22 +30,10 @@ machines = [
       # { "guest" => "80", "host" => "80" }
       # { "guest" => "443", "host" => "443" }
     ]
-  },
-  {
-    "name" => "server-0",
-    "cpus" => "1",
-    "memory" => "1024",
-    "ip" => { "private" => "10.0.0.100", "public" => nil },
-    "ports" => []
-  },
-  {
-    "name" => "worker-0",
-    "cpus" => "1",
-    "memory" => "512",
-    "ip" => { "private" => "10.0.0.200", "public" => nil },
-    "ports" => []
   }
 ]
+
+machines = servers + workers + loadbalancers
 
 Templates.process("./shared/templates", "./shared/templates/.results", {
   machines: machines
