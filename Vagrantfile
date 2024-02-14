@@ -67,6 +67,8 @@ Vagrant.configure("2") do |config|
         bash /shared/scripts/provision.sh upgrade
 
         bash /shared/scripts/provision.sh dependencies
+
+        bash /shared/scripts/certificates.sh $(hostname | grep -oE '^[a-z]+')s
       SHELL
 
       machine.vm.provision "shell", keep_color: true, run: "always", inline: <<-SHELL
