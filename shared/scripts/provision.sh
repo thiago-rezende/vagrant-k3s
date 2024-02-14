@@ -195,23 +195,23 @@ swap() {
 
 # startup services
 services() {
-  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold services $ansi_reset> starting up the '$ansi_yellow_bold services $ansi_reset'"
+  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold services $ansi_reset> starting up the system '$ansi_yellow_bold services $ansi_reset'"
 
   if [[ $HOSTNAME == *"loadbalancer"* ]]; then
     echo >&3 -e "|> [$ansi_white_bold rc-service $ansi_reset] starting '$ansi_yellow_bold nginx $ansi_reset' service"
 
-    rc-service >&$logs_directory/rc_service__nginx__start.log --ifnotstarted nginx start
+    rc-service >&$logs_directory/services__rc_service__nginx__start.log --ifnotstarted nginx start
 
     if [ $? -ne 0 ]; then
-      failure "configs" "$logs_directory/rc_service__nginx__start.log"
+      failure "services" "$logs_directory/services__rc_service__nginx__start.log"
     fi
 
     echo >&3 -e "|> [$ansi_white_bold rc-service $ansi_reset] reloading '$ansi_yellow_bold nginx $ansi_reset' service"
 
-    rc-service >&$logs_directory/rc_service__nginx__reload.log nginx reload
+    rc-service >&$logs_directory/services__rc_service__nginx__reload.log nginx reload
 
     if [ $? -ne 0 ]; then
-      failure "configs" "$logs_directory/rc_service__nginx__reload.log"
+      failure "services" "$logs_directory/services__rc_service__nginx__reload.log"
     fi
   fi
 }
