@@ -37,7 +37,7 @@ machines = servers + workers + loadbalancers
 
 Templates.process("./shared/templates", "./shared/templates/.results", {
   machines: machines,
-  domain: "localhost"
+  domain: "vagrant-k8s.local"
 })
 
 Vagrant.configure("2") do |config|

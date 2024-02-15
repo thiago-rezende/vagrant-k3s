@@ -30,7 +30,7 @@ http {
   server {
     listen 443 ssl;
 
-    server_name *.<%= domain %>;
+    server_name <%= domain %> *.<%= domain %>;
 
     ssl_certificate /shared/.certs/loadbalancers.crt;
     ssl_certificate_key /shared/.certs/loadbalancers.key;
