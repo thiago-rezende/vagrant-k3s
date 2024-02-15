@@ -20,7 +20,20 @@ http {
   }
 
   server {
-    listen 80;
+    listen 80 default_server;
+
+    server_name _;
+
+    return 301 https://$host$request_uri;
+  }
+
+  server {
+    listen 443 ssl;
+
+    server_name *.<%= domain %>;
+
+    ssl_certificate /shared/.certs/loadbalancers.crt;
+    ssl_certificate_key /shared/.certs/loadbalancers.key;
 
     location / {
       proxy_pass http://servers:$server_port;
