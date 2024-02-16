@@ -1,6 +1,8 @@
 ### Vagrant K8s ###
 shared/.logs
 
+shared/.certs
+
 shared/templates/.results
 
 ### Vagrant ###

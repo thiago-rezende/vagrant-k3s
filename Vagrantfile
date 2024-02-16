@@ -36,7 +36,8 @@ loadbalancers = [
 machines = servers + workers + loadbalancers
 
 Templates.process("./shared/templates", "./shared/templates/.results", {
-  machines: machines
+  machines: machines,
+  domain: "localhost"
 })
 
 Vagrant.configure("2") do |config|
@@ -76,7 +77,9 @@ Vagrant.configure("2") do |config|
 
         bash /shared/scripts/provision.sh dependencies
 
-        bash /shared/scripts/certificates.sh $(hostname | grep -oE '^[a-z]+')s
+        if [ $(hostname | grep -oE '[0-9]$') = '0' ]; then
+          bash /shared/scripts/certificates.sh $(hostname | grep -oE '^[a-z]+')s
+        fi
       SHELL
 
       machine.vm.provision "shell", keep_color: true, run: "always", inline: <<-SHELL

@@ -20,6 +20,9 @@ script_name=`basename "$0"`
 # logs directory
 logs_directory=${CERTIFICATES_LOGS_DIRECTORY:-/shared/.logs/certificates/$(hostname)}
 
+# certificates directory
+certificates_directory=${CERTIFICATES_DIRECTORY:-/shared/.certs}
+
 # verbosity
 if [ -z "${CERTIFICATES_QUIET_LOGS:-}" ]; then
     exec 3>&1
@@ -94,47 +97,64 @@ logs_directory() {
   fi
 }
 
+# certificates directory
+certificates_directory() {
+  if [ -d $certificates_directory ]; then
+    return
+  fi
+
+  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold certificates $ansi_reset> setting up the '$ansi_cyan_bold certificates $ansi_reset' environment"
+  echo >&3 -e "|> [$ansi_white_bold mkdir $ansi_reset] creating the '$ansi_yellow_bold $certificates_directory $ansi_reset' directory"
+
+  mkdir >&/tmp/${script_name%.*}__certificates__mkdir.log -p $certificates_directory
+
+  if [ $? -ne 0 ]; then
+    failure "certificates" "/tmp/${script_name%.*}__certificates__mkdir.log"
+  fi
+}
+
+
 # setup loadbalancers
 loadbalancers() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold loadbalancers $ansi_reset> setup '$ansi_yellow_bold loadbalancers $ansi_reset' certificates"
-  echo >&3 -e "|> [$ansi_white_bold openssl $ansi_reset] <$ansi_yellow_bold generate $ansi_reset> generating '$ansi_cyan_bold ssl $ansi_reset' certificates"
+  echo >&3 -e "|> [$ansi_white_bold openssl $ansi_reset] <$ansi_yellow_bold generate $ansi_reset> generating '$ansi_cyan_bold X.509 $ansi_reset' certificates"
 
-  openssl >&$logs_directory/loadbalancers__openssl__ssl.log --help
+  openssl >&$logs_directory/loadbalancers__openssl__req.log req -x509 -keyout $certificates_directory/loadbalancers.key -out $certificates_directory/loadbalancers.crt -noenc -config /shared/templates/.results/loadbalancers.cnf
 
   if [ $? -ne 0 ]; then
-    failure "loadbalancers" "$logs_directory/loadbalancers__openssl__ssl.log"
+    failure "loadbalancers" "$logs_directory/loadbalancers__openssl__req.log"
   fi
 }
 
 # setup servers
 servers() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold servers $ansi_reset> setup '$ansi_yellow_bold servers $ansi_reset' certificates"
-  echo >&3 -e "|> [$ansi_white_bold openssl $ansi_reset] <$ansi_yellow_bold generate $ansi_reset> generating '$ansi_cyan_bold ssl $ansi_reset' certificates"
+  echo >&3 -e "|> [$ansi_white_bold openssl $ansi_reset] <$ansi_yellow_bold generate $ansi_reset> generating '$ansi_cyan_bold X.509 $ansi_reset' certificates"
 
-  openssl >&$logs_directory/servers__openssl__ssl.log --help
+  openssl >&$logs_directory/servers__openssl__help.log --help
 
   if [ $? -ne 0 ]; then
-    failure "servers" "$logs_directory/servers__openssl__ssl.log"
+    failure "servers" "$logs_directory/servers__openssl__help.log"
   fi
 }
 
 # setup workers
 workers() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold workers $ansi_reset> setup '$ansi_yellow_bold workers $ansi_reset' certificates"
-  echo >&3 -e "|> [$ansi_white_bold openssl $ansi_reset] <$ansi_yellow_bold generate $ansi_reset> generating '$ansi_cyan_bold ssl $ansi_reset' certificates"
+  echo >&3 -e "|> [$ansi_white_bold openssl $ansi_reset] <$ansi_yellow_bold generate $ansi_reset> generating '$ansi_cyan_bold X.509 $ansi_reset' certificates"
 
-  openssl >&$logs_directory/workers__openssl__ssl.log --help
+  openssl >&$logs_directory/workers__openssl__help.log --help
 
   if [ $? -ne 0 ]; then
-    failure "workers" "$logs_directory/workers__openssl__ssl.log"
+    failure "workers" "$logs_directory/workers__openssl__help.log"
   fi
 }
 
 # argument handler
 case $1 in
-  loadbalancers) logs_directory; loadbalancers;;
-  servers) logs_directory; servers;;
-  workers) logs_directory; workers;;
+  loadbalancers) logs_directory; certificates_directory; loadbalancers;;
+  servers) logs_directory; certificates_directory; servers;;
+  workers) logs_directory; certificates_directory; workers;;
   help) usage;;
   *) invalid_argument $1;;
 esac

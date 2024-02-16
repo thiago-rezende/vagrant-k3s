@@ -1,0 +1,27 @@
+[req]
+default_bits=2048
+distinguished_name=req_distinguished_name
+attributes=req_attributes
+prompt=no
+req_extensions=v3_req
+
+[req_distinguished_name]
+countryName=BR
+stateOrProvinceName=State
+localityName=Town
+organizationName=Organization
+organizationalUnitName=Department
+commonName=<%= domain %>
+emailAddress=cluster@<%= domain %>
+
+[req_attributes]
+
+[v3_req]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth,serverAuth
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = <%= domain %>
+DNS.2 = *.<%= domain %>
