@@ -6,13 +6,13 @@ prompt=no
 req_extensions=v3_req
 
 [req_distinguished_name]
-countryName=BR
-stateOrProvinceName=State
-localityName=Town
-organizationName=Organization
-organizationalUnitName=Department
-commonName=<%= domain %>
-emailAddress=cluster@<%= domain %>
+countryName=<%= certificate["country_name"] %>
+stateOrProvinceName=<%= certificate["state_or_province_name"] %>
+localityName=<%= certificate["locality_name"] %>
+organizationName=<%= certificate["organization_name"] %>
+organizationalUnitName=<%= certificate["organizational_unit_name"] %>
+commonName=<%= certificate["common_name"] %>
+emailAddress=<%= certificate["email_address"] %>
 
 [req_attributes]
 
@@ -23,5 +23,5 @@ extendedKeyUsage = clientAuth,serverAuth
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = <%= domain %>
-DNS.2 = *.<%= domain %>
+DNS.1 = <%= certificate["common_name"] %>
+DNS.2 = *.<%= certificate["common_name"] %>

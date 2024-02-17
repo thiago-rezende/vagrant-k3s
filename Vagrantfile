@@ -36,8 +36,16 @@ loadbalancers = [
 machines = servers + workers + loadbalancers
 
 Templates.process("./shared/templates", "./shared/templates/.results", {
-  machines: machines,
-  domain: "vagrant-k8s.local"
+  "machines" => machines,
+  "certificate" => {
+    "country_name" => "BR",
+    "state_or_province_name" => "State",
+    "locality_name" => "City",
+    "organization_name" => "Organization",
+    "organizational_unit_name" => "Organization Unit",
+    "common_name" => "vagrant-k8s.local",
+    "email_address" => "cluster@vagrant-k8s.local"
+  }
 })
 
 Vagrant.configure("2") do |config|
