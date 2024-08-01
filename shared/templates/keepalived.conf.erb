@@ -1,0 +1,20 @@
+vrrp_script chk_haproxy {
+    script 'killall -0 haproxy' # faster than pidof
+    interval 2
+}
+
+vrrp_instance haproxy-vip {
+    interface <%= virtuals["servers"]["interface"] %>
+    state <STATE> # MASTER on loadbalancer-0, BACKUP on loadbalancer-n
+    priority <PRIORITY> # 200 on loadbalancer-0, 100 on loadbalancer-n
+
+    virtual_router_id <%= virtuals["servers"]["router"] %>
+
+    virtual_ipaddress {
+        <%= "#{virtuals["servers"]["ip"]}/#{virtuals["servers"]["mask"]}" %>
+    }
+
+    track_script {
+        chk_haproxy
+    }
+}

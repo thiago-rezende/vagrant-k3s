@@ -1,0 +1,49 @@
+defaults
+    timeout connect 5s
+    timeout client 1m
+    timeout server 1m
+
+frontend k3s-frontend
+    bind *:6443
+    mode tcp
+    option tcplog
+    default_backend k3s-backend
+
+backend k3s-backend
+    mode tcp
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s
+<% machines.select { |m| m["name"].include?("server") }.each  do |s| -%>
+    <%= "server #{s["name"]} #{s["ip"]["private"]}:6443 check" %>
+<% end -%>
+
+frontend http-frontend
+    bind *:80
+    mode tcp
+    option tcplog
+    default_backend http-backend
+
+backend http-backend
+    mode tcp
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s
+<% machines.select { |m| m["name"].include?("server") }.each  do |s| -%>
+    <%= "server #{s["name"]} #{s["ip"]["private"]}:80 check" %>
+<% end -%>
+
+frontend https-frontend
+    bind *:443
+    mode tcp
+    option tcplog
+    default_backend https-backend
+
+backend https-backend
+    mode tcp
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s
+<% machines.select { |m| m["name"].include?("server") }.each  do |s| -%>
+    <%= "server #{s["name"]} #{s["ip"]["private"]}:443 check" %>
+<% end -%>

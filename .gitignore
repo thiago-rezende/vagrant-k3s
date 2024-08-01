@@ -1,4 +1,4 @@
-### Vagrant K8s ###
+### Shared Folders ###
 shared/.logs
 
 shared/.certs

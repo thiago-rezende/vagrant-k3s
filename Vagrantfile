@@ -1,21 +1,50 @@
 require './modules/templates'
+require './modules/providers'
 
 servers = [
   {
     "name" => "server-0",
     "cpus" => "1",
-    "memory" => "1024",
+    "memory" => "512",
     "ip" => { "private" => "10.0.0.100", "public" => nil },
+    "ports" => []
+  },
+  {
+    "name" => "server-1",
+    "cpus" => "1",
+    "memory" => "512",
+    "ip" => { "private" => "10.0.0.110", "public" => nil },
+    "ports" => []
+  },
+  {
+    "name" => "server-2",
+    "cpus" => "1",
+    "memory" => "512",
+    "ip" => { "private" => "10.0.0.120", "public" => nil },
     "ports" => []
   }
 ]
 
-workers = [
+agents = [
   {
-    "name" => "worker-0",
+    "name" => "agent-0",
     "cpus" => "1",
     "memory" => "512",
     "ip" => { "private" => "10.0.0.200", "public" => nil },
+    "ports" => []
+  },
+  {
+    "name" => "agent-1",
+    "cpus" => "1",
+    "memory" => "512",
+    "ip" => { "private" => "10.0.0.210", "public" => nil },
+    "ports" => []
+  },
+  {
+    "name" => "agent-2",
+    "cpus" => "1",
+    "memory" => "512",
+    "ip" => { "private" => "10.0.0.220", "public" => nil },
     "ports" => []
   }
 ]
@@ -25,27 +54,31 @@ loadbalancers = [
     "name" => "loadbalancer-0",
     "cpus" => "1",
     "memory" => "512",
-    "ip" => { "private" => "10.0.0.10", "public" => nil },
-    "ports" => [
-      # { "guest" => "80", "host" => "80" }
-      # { "guest" => "443", "host" => "443" }
-    ]
+    "ip" => { "private" => "10.0.0.20", "public" => nil },
+    "ports" => []
+  },
+  {
+    "name" => "loadbalancer-1",
+    "cpus" => "1",
+    "memory" => "512",
+    "ip" => { "private" => "10.0.0.30", "public" => nil },
+    "ports" => []
   }
 ]
 
-machines = servers + workers + loadbalancers
+machines = servers + agents + loadbalancers
+
+virtuals = {
+  "servers" => { "ip" => "10.0.0.10", "mask" => "24", "router" => "10", "interface" => "eth1" }
+}
+
+shared = [
+  { "host" => "./shared", "guest" => "/shared" }
+]
 
 Templates.process("./shared/templates", "./shared/templates/.results", {
   "machines" => machines,
-  "certificate" => {
-    "country_name" => "BR",
-    "state_or_province_name" => "State",
-    "locality_name" => "City",
-    "organization_name" => "Organization",
-    "organizational_unit_name" => "Organization Unit",
-    "common_name" => "vagrant-k8s.local",
-    "email_address" => "cluster@vagrant-k8s.local"
-  }
+  "virtuals" => virtuals
 })
 
 Vagrant.configure("2") do |config|
@@ -57,37 +90,24 @@ Vagrant.configure("2") do |config|
 
       machine.vm.hostname = spec["name"]
 
-      unless spec["ip"]["public"].nil? || spec["ip"]["public"].empty?
-        machine.vm.network "public_network", ip: spec["ip"]["public"]
-      end
-
       machine.vm.network "private_network", ip: spec["ip"]["private"]
 
       spec["ports"].each do |port|
         machine.vm.network "forwarded_port", guest: port["guest"], host: port["host"]
       end
 
-      machine.vm.synced_folder "./shared", "/shared"
-
-      machine.vm.provider "virtualbox" do |vbox|
-        vbox.name = spec["name"]
-
-        vbox.cpus = spec["cpus"]
-        vbox.memory = spec["memory"]
-
-        vbox.customize ["modifyvm", :id, "--groups", "/K8s"]
-      end
+      Providers.define(machine, spec, shared)
 
       machine.vm.provision "shell", keep_color: true, inline: <<-SHELL
+        bash /shared/scripts/provision.sh hosts
+
         bash /shared/scripts/provision.sh swapoff
 
         bash /shared/scripts/provision.sh upgrade
 
         bash /shared/scripts/provision.sh dependencies
 
-        if [ $(hostname | grep -oE '[0-9]$') = '0' ]; then
-          bash /shared/scripts/certificates.sh $(hostname | grep -oE '^[a-z]+')s
-        fi
+        bash /shared/scripts/provision.sh k3s #{virtuals["servers"]["ip"]} #{virtuals["servers"]["interface"]}
       SHELL
 
       machine.vm.provision "shell", keep_color: true, run: "always", inline: <<-SHELL

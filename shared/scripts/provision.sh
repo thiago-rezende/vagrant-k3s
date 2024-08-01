@@ -128,13 +128,45 @@ dependencies() {
     failure "dependencies" "$logs_directory/dependencies__apk__add__vim.log"
   fi
 
-  if [[ $HOSTNAME == *"loadbalancer"* ]]; then
-    echo >&3 -e "|> [$ansi_white_bold apk $ansi_reset] <$ansi_yellow_bold add $ansi_reset> installing '$ansi_magenta_bold nginx $ansi_reset' package"
+  echo >&3 -e "|> [$ansi_white_bold apk $ansi_reset] <$ansi_yellow_bold add $ansi_reset> installing '$ansi_magenta_bold curl $ansi_reset' package"
 
-    apk >&$logs_directory/dependencies__apk__add__nginx.log add nginx
+  apk >&$logs_directory/dependencies__apk__add__curl.log add curl
+
+  if [ $? -ne 0 ]; then
+    failure "dependencies" "$logs_directory/dependencies__apk__add__curl.log"
+  fi
+
+  if [[ $HOSTNAME == *"loadbalancer"* ]]; then
+    echo >&3 -e "|> [$ansi_white_bold apk $ansi_reset] <$ansi_yellow_bold add $ansi_reset> installing '$ansi_magenta_bold haproxy $ansi_reset' package"
+
+    apk >&$logs_directory/dependencies__apk__add__haproxy.log add haproxy
 
     if [ $? -ne 0 ]; then
-      failure "dependencies" "$logs_directory/dependencies__apk__add__nginx.log"
+      failure "dependencies" "$logs_directory/dependencies__apk__add__haproxy.log"
+    fi
+
+    echo >&3 -e "|> [$ansi_white_bold apk $ansi_reset] <$ansi_yellow_bold add $ansi_reset> installing '$ansi_magenta_bold haproxy-openrc $ansi_reset' package"
+
+    apk >&$logs_directory/dependencies__apk__add__haproxy_openrc.log add haproxy-openrc
+
+    if [ $? -ne 0 ]; then
+      failure "dependencies" "$logs_directory/dependencies__apk__add__haproxy_openrc.log"
+    fi
+
+    echo >&3 -e "|> [$ansi_white_bold apk $ansi_reset] <$ansi_yellow_bold add $ansi_reset> installing '$ansi_magenta_bold keepalived $ansi_reset' package"
+
+    apk >&$logs_directory/dependencies__apk__add__keepalived.log add keepalived
+
+    if [ $? -ne 0 ]; then
+      failure "dependencies" "$logs_directory/dependencies__apk__add__keepalived.log"
+    fi
+
+    echo >&3 -e "|> [$ansi_white_bold apk $ansi_reset] <$ansi_yellow_bold add $ansi_reset> installing '$ansi_magenta_bold keepalived-openrc $ansi_reset' package"
+
+    apk >&$logs_directory/dependencies__apk__add__keepalived_openrc.log add keepalived-openrc
+
+    if [ $? -ne 0 ]; then
+      failure "dependencies" "$logs_directory/dependencies__apk__add__keepalived_openrc.log"
     fi
   fi
 }
@@ -163,12 +195,32 @@ configs() {
   fi
 
   if [[ $HOSTNAME == *"loadbalancer"* ]]; then
-    echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /shared/templates/.results/nginx.conf $ansi_reset' -> '$ansi_yellow_bold /etc/nginx/nginx.conf $ansi_reset'"
+    echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /shared/templates/.results/haproxy.cfg $ansi_reset' -> '$ansi_yellow_bold /etc/haproxy/haproxy.cfg $ansi_reset'"
 
-    cp >&$logs_directory/configs__copy__nginx_conf.log /shared/templates/.results/nginx.conf /etc/nginx/nginx.conf
+    mkdir -p /etc/haproxy && cp >&$logs_directory/configs__copy__haproxy_cfg.log /shared/templates/.results/haproxy.cfg /etc/haproxy/haproxy.cfg
 
     if [ $? -ne 0 ]; then
-      failure "configs" "$logs_directory/configs__copy__nginx_conf.log"
+      failure "configs" "$logs_directory/configs__copy__haproxy_cfg.log"
+    fi
+
+    echo >&3 -e "|> [$ansi_white_bold copy $ansi_reset] '$ansi_magenta_bold /shared/templates/.results/keepalived.conf $ansi_reset' -> '$ansi_yellow_bold /etc/keepalived/keepalived.conf $ansi_reset'"
+
+    mkdir -p /etc/keepalived && cp >&$logs_directory/configs__copy__keepalived_conf.log /shared/templates/.results/keepalived.conf /etc/keepalived/keepalived.conf
+
+    if [ $? -ne 0 ]; then
+      failure "configs" "$logs_directory/configs__copy__keepalived_conf.log"
+    fi
+
+    echo >&3 -e "|> [$ansi_white_bold sed $ansi_reset] 'applying '$ansi_yellow_bold /etc/keepalived/keepalived.conf $ansi_reset' configuration"
+
+    if [[ $HOSTNAME == "loadbalancer-0" ]]; then
+      sed >&$logs_directory/configs__sed__keepalived_conf.log -i 's/<STATE>/MASTER/g; s/<PRIORITY>/200/g' /etc/keepalived/keepalived.conf
+    else
+      sed >&$logs_directory/configs__sed__keepalived_conf.log -i 's/<STATE>/BACKUP/g; s/<PRIORITY>/100/g' /etc/keepalived/keepalived.conf
+    fi
+
+    if [ $? -ne 0 ]; then
+      failure "configs" "$logs_directory/configs__copy__keepalived_conf.log"
     fi
   fi
 }
@@ -197,21 +249,93 @@ swap() {
 services() {
   echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold services $ansi_reset> starting up the system '$ansi_yellow_bold services $ansi_reset'"
 
-  if [[ $HOSTNAME == *"loadbalancer"* ]]; then
-    echo >&3 -e "|> [$ansi_white_bold rc-service $ansi_reset] starting '$ansi_yellow_bold nginx $ansi_reset' service"
+  if [[ $HOSTNAME == *"server"* ]]; then
+    echo >&3 -e "|> [$ansi_white_bold rc-service $ansi_reset] starting '$ansi_yellow_bold k3s $ansi_reset' service"
 
-    rc-service >&$logs_directory/services__rc_service__nginx__start.log --ifnotstarted nginx start
+    rc-service >&$logs_directory/services__rc_service__k3s__start.log --ifnotstarted k3s start
 
     if [ $? -ne 0 ]; then
-      failure "services" "$logs_directory/services__rc_service__nginx__start.log"
+      failure "services" "$logs_directory/services__rc_service__k3s__start.log"
+    fi
+  fi
+
+  if [[ $HOSTNAME == *"agent"* ]]; then
+    echo >&3 -e "|> [$ansi_white_bold rc-service $ansi_reset] starting '$ansi_yellow_bold k3s-agent $ansi_reset' service"
+
+    rc-service >&$logs_directory/services__rc_service__k3s_agent__start.log --ifnotstarted k3s-agent start
+
+    if [ $? -ne 0 ]; then
+      failure "services" "$logs_directory/services__rc_service__k3s_agent__start.log"
+    fi
+  fi
+
+  if [[ $HOSTNAME == *"loadbalancer"* ]]; then
+    echo >&3 -e "|> [$ansi_white_bold rc-service $ansi_reset] starting '$ansi_yellow_bold haproxy $ansi_reset' service"
+
+    rc-service >&$logs_directory/services__rc_service__haproxy__start.log --ifnotstarted haproxy start
+
+    if [ $? -ne 0 ]; then
+      failure "services" "$logs_directory/services__rc_service__haproxy__start.log"
     fi
 
-    echo >&3 -e "|> [$ansi_white_bold rc-service $ansi_reset] reloading '$ansi_yellow_bold nginx $ansi_reset' service"
+    echo >&3 -e "|> [$ansi_white_bold rc-service $ansi_reset] starting '$ansi_yellow_bold keepalived $ansi_reset' service"
 
-    rc-service >&$logs_directory/services__rc_service__nginx__reload.log nginx reload
+    rc-service >&$logs_directory/services__rc_service__keepalived__start.log --ifnotstarted keepalived start
 
     if [ $? -ne 0 ]; then
-      failure "services" "$logs_directory/services__rc_service__nginx__reload.log"
+      failure "services" "$logs_directory/services__rc_service__keepalived__start.log"
+    fi
+  fi
+}
+
+# setup k3s
+k3s_setup () {
+  echo >&3 -e "[$ansi_green_bold $script_name $ansi_reset] <$ansi_white_bold k3s $ansi_reset> setting up the '$ansi_yellow_bold k3s $ansi_reset' node"
+
+  if [[ $HOSTNAME =~ server|agent ]]; then
+    echo >&3 -e "|> [$ansi_white_bold sh $ansi_reset] installing '$ansi_magenta_bold k3s $ansi_reset' binary from '$ansi_yellow_bold https://get.k3s.io $ansi_reset'"
+
+    local token="k3s-token"
+    local server_ip=${1:-"server-0"}
+    local server="https://$server_ip:6443"
+    local interface="${2:-"eth1"}"
+    local address=$(ip -4 -o addr show $interface | awk '{print $4}' | cut -d '/' -f 1)
+
+    export INSTALL_K3S_SKIP_ENABLE=true
+
+    if [[ $HOSTNAME == *"server"* ]]; then
+      if [[ $HOSTNAME == "server-0" ]]; then
+        curl -sfL https://get.k3s.io | sh >&$logs_directory/k3s__install__server.log -s - server \
+          --bind-address $address \
+          --node-external-ip $address \
+          --flannel-iface $interface \
+          --tls-san $server_ip \
+          --token $token \
+          --cluster-init
+      else
+        curl -sfL https://get.k3s.io | sh >&$logs_directory/k3s__install__server.log -s - server \
+          --bind-address $address \
+          --node-external-ip $address \
+          --flannel-iface $interface \
+          --tls-san $server_ip \
+          --token $token \
+          --server $server
+      fi
+
+      if [ $? -ne 0 ]; then
+        failure "k3s" "$logs_directory/k3s__install__server.log"
+      fi
+    fi
+
+    if [[ $HOSTNAME == *"agent"* ]]; then
+      curl -sfL https://get.k3s.io | sh >&$logs_directory/k3s__install__agent.log -s - agent \
+        --flannel-iface $interface \
+        --token $token \
+        --server $server
+
+      if [ $? -ne 0 ]; then
+        failure "k3s" "$logs_directory/k3s__install__agent.log"
+      fi
     fi
   fi
 }
@@ -225,5 +349,6 @@ case $1 in
   upgrade) logs_directory; upgrade;;
   hosts) logs_directory; hosts;;
   help) usage;;
+  k3s) logs_directory; k3s_setup $2;;
   *) invalid_argument $1;;
 esac
