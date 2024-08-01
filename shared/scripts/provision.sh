@@ -58,6 +58,7 @@ usage() {
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold upgrade $ansi_reset      | execute a '$ansi_magenta_bold system wide $ansi_reset' upgrade"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold hosts $ansi_reset        | update the '$ansi_yellow_bold hosts $ansi_reset' file"
   echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold help $ansi_reset         | show this help message"
+  echo >&3 -e "|> $ansi_cyan_bold $script_name $ansi_white_bold k3s $ansi_reset          | setup '$ansi_yellow_bold k3s $ansi_reset' node"
 
   exit 0
 }

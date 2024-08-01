@@ -11,11 +11,11 @@
 
 <!-- Short Description -->
 
-> A Highly Available Kubernetes cluster built from scratch using Vagrant machines.
+> A **Highly Available Kubernetes** cluster built from scratch using **Vagrant** machines.
 
 <!-- Description -->
 
-This project is being developed to be the simplest and yet complete  Highly Available [Kubernetes][kubernetes-url] cluster using [Vagrant][vagrant-url] machines, [HAproxy][haproxy-url] and [Keepalived][keepalived-url] for study, development, prototyping and testing purposes.
+This project is being developed to be the simplest and yet complete  **Highly Available [Kubernetes][kubernetes-url]** cluster using **[Vagrant][vagrant-url]** machines, **[HAproxy][haproxy-url]** and **[Keepalived][keepalived-url]** for **study**, **development**, **prototyping** and **testing** purposes.
 
 <!-- Links -->
 
