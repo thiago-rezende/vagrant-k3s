@@ -1,12 +1,14 @@
 .PHONY: up provision halt reload destroy status ssh attach
 
+provider ?= virtualbox
+
 up:
 	@echo "[ cluster ] starting cluster"
-	@vagrant up
+	@vagrant up --provider=$(provider)
 
 provision:
 	@echo "[ cluster ] starting cluster"
-	@vagrant up --provision
+	@vagrant up --provision --provider=$(provider)
 
 halt:
 	@echo "[ cluster ] stopping cluster"

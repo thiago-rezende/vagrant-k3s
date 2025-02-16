@@ -2,7 +2,7 @@ require 'erb'
 
 class Templates
   def self.process(templates_dir, results_dir, variables)
-    Dir.mkdir(results_dir) unless File.exists?(results_dir)
+    Dir.mkdir(results_dir) unless File.exist?(results_dir)
 
     templates = Dir.glob(templates_dir + "/*.erb")
 

@@ -6,7 +6,7 @@ class Providers
   end
 
   def self.define_libvirt(machine, spec, shared)
-    machine.vm.provider "virtualbox" do |libvirt|
+    machine.vm.provider "libvirt" do |libvirt|
       libvirt.title = spec["name"]
       libvirt.default_prefix = ""
 
@@ -41,6 +41,10 @@ class Providers
 
       if spec["name"].include? "agent"
         vbox.customize ["modifyvm", :id, "--groups", "/cluster/agents"]
+      end
+
+      if spec["name"].include? "loadbalancer"
+        vbox.customize ["modifyvm", :id, "--groups", "/cluster/loadbalancers"]
       end
     end
   end
