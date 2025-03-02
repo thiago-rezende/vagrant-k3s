@@ -3,13 +3,13 @@ defaults
     timeout client 1m
     timeout server 1m
 
-frontend k3s-frontend
+frontend kube-api-frontend
     bind *:6443
     mode tcp
     option tcplog
-    default_backend k3s-backend
+    default_backend kube-api-backend
 
-backend k3s-backend
+backend kube-api-backend
     mode tcp
     option tcp-check
     balance roundrobin

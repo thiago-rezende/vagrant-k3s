@@ -5,21 +5,21 @@ servers = [
   {
     "name" => "server-0",
     "cpus" => "1",
-    "memory" => "512",
+    "memory" => "1024",
     "ip" => { "private" => "10.0.0.100", "public" => nil },
     "ports" => []
   },
   {
     "name" => "server-1",
     "cpus" => "1",
-    "memory" => "512",
+    "memory" => "1024",
     "ip" => { "private" => "10.0.0.110", "public" => nil },
     "ports" => []
   },
   {
     "name" => "server-2",
     "cpus" => "1",
-    "memory" => "512",
+    "memory" => "1024",
     "ip" => { "private" => "10.0.0.120", "public" => nil },
     "ports" => []
   }
@@ -53,6 +53,7 @@ loadbalancers = [
   {
     "name" => "loadbalancer-0",
     "cpus" => "1",
+    "disk" => "512MB",
     "memory" => "512",
     "ip" => { "private" => "10.0.0.20", "public" => nil },
     "ports" => []
@@ -60,6 +61,7 @@ loadbalancers = [
   {
     "name" => "loadbalancer-1",
     "cpus" => "1",
+    "disk" => "512MB",
     "memory" => "512",
     "ip" => { "private" => "10.0.0.30", "public" => nil },
     "ports" => []
